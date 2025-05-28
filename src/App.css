@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+
+
+
+.nav22 {
+    background-color: "#0990909";
+}
+
+.hero-section {
+  background-position: center 30%;
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    background-position: center 20%;
+  }
+}
+
+ @media (min-width: 1024px) {
+      .hero-section {
+        background-position: center 5%;
+      }
+    }
