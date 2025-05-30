@@ -44,8 +44,8 @@ const Navbar = () => {
     { name: "Home", href: "#", current: activeItem === "Home" },
     { name: "Features", href: "#features", current: activeItem === "Features" },
     { name: "Demo", href: "#demo", current: activeItem === "Demo" },
-    { name: "About", href: "#", current: activeItem === "About" },
-    { name: "Contact", href: "#", current: activeItem === "Contact" },
+    { name: "Testimony", href: "#", current: activeItem === "About" },
+    { name: "Contact Us", href: "#", current: activeItem === "Contact" },
   ];
 
   const handleItemClick = (itemName: SetStateAction<string>) => {
