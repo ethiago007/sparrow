@@ -30,7 +30,7 @@ const FeaturesSection = () => {
     <section id="features" className="py-20 bg-white">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Section Header */}
-        <motion.div 
+        <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -48,7 +48,7 @@ const FeaturesSection = () => {
         {/* Features Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
-            <FeatureCard 
+            <FeatureCard
               key={index}
               icon={feature.icon}
               title={feature.title}
@@ -74,7 +74,7 @@ const FeatureCard = ({ icon, title, description, index }: FeatureCardProps) => {
     <motion.div
       initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
       whileInView={{ opacity: 1, x: 0 }}
-      transition={{ 
+      transition={{
         duration: 0.6,
         delay: index * 0.1
       }}

@@ -19,7 +19,7 @@ const DemoSection = () => {
         {/* Demo Comparison */}
         <div className="flex flex-col md:flex-row items-center gap-8 mb-16">
           {/* Before - PDF */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
@@ -48,7 +48,7 @@ const DemoSection = () => {
           </motion.div>
 
           {/* After - Summary */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
