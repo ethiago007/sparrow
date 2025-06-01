@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X, Bird } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { auth, signOut } from "../firebase/firebase.config";
@@ -13,10 +13,19 @@ const Navbar = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  
+  // Add this ref to track when user is clicking navigation
+  const isNavigatingRef = useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
+
+      // Don't update active item if user is currently navigating
+      if (isNavigatingRef.current) {
+        return;
+      }
 
       const sections = [
         { id: "hero", name: "Home", bgDark: true },
@@ -59,26 +68,56 @@ const Navbar = () => {
     { name: "Contact Us", href: "contact" },
   ];
 
-  /* ========= MODIFIED FUNCTION ========= */
- const scrollToSection = (id: string) => {
+const scrollToSection = (id: string) => {
   const element = document.getElementById(id);
   if (element) {
+    // Immediately set the active item to what we're clicking
+    const sectionName = navItems.find((item) => item.href === id)?.name || "Home";
+    
+    // Set navigation flag to prevent scroll handler from interfering
+    isNavigatingRef.current = true;
+    
+    // Update active state immediately
+    setActiveItem(sectionName);
+    setIsOpen(false);
+    
+    // Also update dark background immediately based on the section
+    const sections = [
+      { id: "hero", name: "Home", bgDark: true },
+      { id: "features", name: "Features", bgDark: false },
+      { id: "demo", name: "Demo", bgDark: true },
+      { id: "testimonials", name: "Testimony", bgDark: false },
+      { id: "cta", name: "CTA", bgDark: true },
+      { id: "contact", name: "Contact Us", bgDark: false },
+    ];
+    
+    const targetSection = sections.find(section => section.id === id);
+    if (targetSection) {
+      setDarkBackground(targetSection.bgDark);
+    }
+
+    // Calculate scroll position
+    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+    const offsetPosition = elementPosition - 100; // Adjust for navbar
+
+    // Scroll to the section
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth"
+    });
+
+    // Reset navigation flag after scroll completes - increased timeout
     setTimeout(() => {
-      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-      const offsetPosition = elementPosition - 100; // Adjust for navbar
-      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-      setActiveItem(navItems.find((item) => item.href === id)?.name || "Home");
-      setIsOpen(false);
-    }, 50); // small delay to let layout settle
+      isNavigatingRef.current = false;
+    }, 1500);
   }
 };
-
-  /* ===================================== */
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
       setIsOpen(false);
+      setAvatarMenuOpen(false);
     } catch (error) {
       console.error("Sign out error:", error);
     }
@@ -93,6 +132,18 @@ const Navbar = () => {
   const activeIndicator = darkBackground ? "bg-white" : "bg-[#090909]";
   const mobileMenuBg = darkBackground ? darkBgColor : "bg-white";
   const hoverColor = darkBackground ? "hover:bg-[#1a1a1a]" : "hover:bg-gray-100";
+
+  // Get user initials for fallback avatar
+  const getUserInitials = () => {
+    if (!auth.currentUser) return "";
+    const name = auth.currentUser.displayName || auth.currentUser.email || "";
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
 
   return (
     <>
@@ -147,27 +198,71 @@ const Navbar = () => {
             {/* Auth buttons (desktop) */}
             <div className="hidden md:flex items-center space-x-4">
               {auth.currentUser ? (
-                <motion.div className="flex items-center space-x-4">
-                  <span className={`text-sm ${textColor}`}>
-                    {auth.currentUser.displayName || auth.currentUser.email}
-                  </span>
-                  <motion.button
+                <div className="relative">
+                  <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setChangePasswordOpen(true)}
-                    className={`px-4 py-2 text-sm font-medium rounded-full ${buttonBg} ${hoverColor} transition-colors duration-300`}
+                    onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
+                    className={`flex items-center justify-center w-10 h-10 rounded-full cursor-pointer ${
+                      darkBackground ? "bg-white" : "bg-[#090909]"
+                    }`}
                   >
-                    Change Password
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleSignOut}
-                    className={`px-4 py-2 text-sm font-medium rounded-full ${buttonBg} shadow-md transition-all duration-300`}
-                  >
-                    Logout
-                  </motion.button>
-                </motion.div>
+                    {auth.currentUser.photoURL ? (
+                      <img
+                        src={auth.currentUser.photoURL}
+                        alt="User"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <span
+                        className={`text-sm font-medium ${
+                          darkBackground ? "text-[#090909]" : "text-white"
+                        }`}
+                      >
+                        {getUserInitials()}
+                      </span>
+                    )}
+                  </motion.div>
+
+                  {/* Avatar dropdown menu */}
+                  <AnimatePresence>
+                    {avatarMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 ${
+                          darkBackground ? "bg-[#1a1a1a]" : "bg-white"
+                        }`}
+                      >
+                        <button
+                          onClick={() => {
+                            setChangePasswordOpen(true);
+                            setAvatarMenuOpen(false);
+                          }}
+                          className={`block w-full text-left px-4 py-2 text-sm ${
+                            darkBackground
+                              ? "text-white hover:bg-[#2a2a2a]"
+                              : "text-[#090909] hover:bg-gray-100"
+                          }`}
+                        >
+                          Change Password
+                        </button>
+                        <button
+                          onClick={handleSignOut}
+                          className={`block w-full text-left px-4 py-2 text-sm ${
+                            darkBackground
+                              ? "text-white hover:bg-[#2a2a2a]"
+                              : "text-[#090909] hover:bg-gray-100"
+                          }`}
+                        >
+                          Logout
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               ) : (
                 <div className="flex space-x-2">
                   <motion.button
@@ -225,12 +320,10 @@ const Navbar = () => {
                 {navItems.map((item) => (
                   <motion.div
                     key={item.name}
-                    /* ========== MODIFIED CLICK ========== */
                     onClick={() => {
-                      setIsOpen(false); // close menu first
+                      setIsOpen(false);
                       setTimeout(() => scrollToSection(item.href), 250);
                     }}
-                    /* ==================================== */
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.1 * navItems.indexOf(item) }}
@@ -247,7 +340,36 @@ const Navbar = () => {
                 ))}
 
                 {/* Auth buttons (mobile) */}
-                <div className="flex space-x-2 pt-4">
+                <div className="pt-4">
+                  {auth.currentUser ? (
+                    <div className="flex items-center space-x-4 mb-4 px-3 py-2">
+                      <div
+                        className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                          darkBackground ? "bg-white" : "bg-[#090909]"
+                        }`}
+                      >
+                        {auth.currentUser.photoURL ? (
+                          <img
+                            src={auth.currentUser.photoURL}
+                            alt="User"
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        ) : (
+                          <span
+                            className={`text-sm font-medium ${
+                              darkBackground ? "text-[#090909]" : "text-white"
+                            }`}
+                          >
+                            {getUserInitials()}
+                          </span>
+                        )}
+                      </div>
+                      <span className={`text-sm ${textColor}`}>
+                        {auth.currentUser.displayName || auth.currentUser.email}
+                      </span>
+                    </div>
+                  ) : null}
+
                   {auth.currentUser ? (
                     <>
                       <motion.button
@@ -266,7 +388,7 @@ const Navbar = () => {
                           handleSignOut();
                           setIsOpen(false);
                         }}
-                        className={`px-4 py-2 text-sm font-medium rounded-md w-full ${buttonBg} shadow-md`}
+                        className={`px-4 py-2 text-sm font-medium rounded-md w-full ${buttonBg} shadow-md mt-2`}
                       >
                         Logout
                       </motion.button>
@@ -291,7 +413,7 @@ const Navbar = () => {
                           setIsLogin(false);
                           setIsOpen(false);
                         }}
-                        className={`px-4 py-2 text-sm font-medium rounded-md w-full ${buttonBg} shadow-md`}
+                        className={`px-4 py-2 text-sm font-medium rounded-md w-full ${buttonBg} shadow-md mt-2`}
                       >
                         Sign Up
                       </motion.button>

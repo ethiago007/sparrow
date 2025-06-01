@@ -13,7 +13,7 @@ export const LineInput = forwardRef<HTMLInputElement, LineInputProps>(
           darkMode 
             ? 'border-white text-white placeholder-gray-300' 
             : 'border-black text-black placeholder-gray-500'
-        } focus:outline-none focus:border-blue-500 transition-colors ${className}`}
+        } focus:outline-none focus:border-black-500 transition-colors ${className}`}
         {...props}
       />
     );

@@ -32,8 +32,8 @@ interface AuthDialogProps {
   darkMode: boolean;
 }
 
-const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
-  const [tabValue, setTabValue] = useState<number>(0);
+const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, isLogin }) => {
+  const [tabValue, setTabValue] = useState<number>(isLogin ? 0 : 1);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -123,37 +123,6 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
     }
   };
 
-  // Line-style input component
-  const LineInput = ({ 
-    type = "text", 
-    value, 
-    onChange, 
-    placeholder,
-    disabled = false
-  }: {
-    type?: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    placeholder: string;
-    disabled?: boolean;
-  }) => (
-    <input
-      type={type}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      disabled={disabled}
-      className={`
-        w-full py-3 px-1 bg-transparent border-b 
-        ${darkMode 
-          ? 'border-white text-white placeholder-gray-300 focus:border-blue-400' 
-          : 'border-gray-400 text-black placeholder-gray-500 focus:border-blue-600'
-        }
-        focus:outline-none transition-colors
-      `}
-    />
-  );
-
   return (
     <>
       {/* Main Auth Dialog */}
@@ -163,63 +132,57 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
         maxWidth="xs" 
         fullWidth
         PaperProps={{
-          className: darkMode ? 'bg-[#121212]' : 'bg-white'
+          className: 'bg-white'
         }}
       >
-        <DialogTitle className={darkMode ? 'text-white' : 'text-black'}>
+        <DialogTitle className="text-black">
           <Tabs 
             value={tabValue} 
             onChange={handleTabChange} 
             variant="fullWidth"
-            textColor={darkMode ? 'secondary' : 'primary'}
-            indicatorColor={darkMode ? 'secondary' : 'primary'}
+            textColor="primary"
+            indicatorColor="primary"
           >
-            <Tab label="Login" className={darkMode ? 'text-white' : 'text-black'} />
-            <Tab label="Sign Up" className={darkMode ? 'text-white' : 'text-black'} />
+            <Tab label="Login" className="text-black" />
+            <Tab label="Sign Up" className="text-black" />
           </Tabs>
         </DialogTitle>
         
         <DialogContent>
           {error && (
-            <Alert 
-              severity="error" 
-              sx={{ mb: 2 }}
-              className={darkMode ? 'bg-red-900' : 'bg-red-100'}
-            >
+            <Alert severity="error" sx={{ mb: 2 }} className="bg-red-100">
               {error}
             </Alert>
           )}
           
           {success && (
-            <Alert 
-              severity="success" 
-              sx={{ mb: 2 }}
-              className={darkMode ? 'bg-green-900' : 'bg-green-100'}
-            >
+            <Alert severity="success" sx={{ mb: 2 }} className="bg-green-100">
               {success}
             </Alert>
           )}
 
           {tabValue === 0 && (
-            <Box sx={{ mt: 2 }} className="space-y-6">
-              <LineInput
+            <Box sx={{ mt: 2 }} className="space-y-4">
+              <input
                 type="email"
                 value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
                 disabled={loading}
+                className="w-full py-2 px-1 border-b border-gray-400 focus:outline-none focus:border-black"
               />
-              <LineInput
+              <input
                 type="password"
                 value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 disabled={loading}
+                className="w-full py-2 px-1 border-b border-gray-400 focus:outline-none focus:border-black"
               />
               <Typography 
                 variant="body2" 
                 sx={{ mt: 1, textAlign: 'right', cursor: 'pointer' }}
-                className={darkMode ? 'text-gray-300' : 'text-gray-600'}
+                className="text-gray-600"
                 onClick={() => setShowResetDialog(true)}
               >
                 Forgot password?
@@ -228,33 +191,36 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
           )}
 
           {tabValue === 1 && (
-            <Box sx={{ mt: 2 }} className="space-y-6">
-              <LineInput
+            <Box sx={{ mt: 2 }} className="space-y-4">
+              <input
                 type="text"
                 value={name}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Full Name"
                 disabled={loading}
+                className="w-full py-2 px-1 border-b border-gray-400 focus:outline-none focus:border-black"
               />
-              <LineInput
+              <input
                 type="email"
                 value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
                 disabled={loading}
+                className="w-full py-2 px-1 border-b border-gray-400 focus:outline-none focus:border-black"
               />
-              <LineInput
+              <input
                 type="password"
                 value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 disabled={loading}
+                className="w-full py-2 px-1 border-b border-gray-400 focus:outline-none focus:border-black"
               />
             </Box>
           )}
 
-          <Divider sx={{ my: 3 }} className={darkMode ? 'bg-gray-700' : 'bg-gray-300'}>
-            <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>OR</span>
+          <Divider sx={{ my: 3 }} className="bg-gray-300">
+            <span className="text-gray-600">OR</span>
           </Divider>
 
           <Button
@@ -264,10 +230,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
             onClick={handleGoogleSignIn}
             sx={{ mb: 2 }}
             disabled={loading}
-            className={darkMode ? 
-              'text-white border-white hover:bg-gray-800' : 
-              'text-black border-gray-400 hover:bg-gray-100'
-            }
+            className="text-black border-gray-400 hover:bg-gray-100"
           >
             Continue with Google
           </Button>
@@ -277,7 +240,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
           <Button 
             onClick={onClose} 
             disabled={loading}
-            className={darkMode ? 'text-white' : 'text-black'}
+            className="text-black"
           >
             Cancel
           </Button>
@@ -286,10 +249,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
             onClick={tabValue === 0 ? handleLogin : handleSignup}
             disabled={loading}
             endIcon={loading && <CircularProgress size={20} />}
-            className={darkMode ? 
-              'bg-white text-black hover:bg-gray-200' : 
-              'bg-black text-white hover:bg-gray-800'
-            }
+            className="bg-black text-white hover:bg-gray-800"
           >
             {tabValue === 0 ? 'Login' : 'Sign Up'}
           </Button>
@@ -303,10 +263,10 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
         maxWidth="xs" 
         fullWidth
         PaperProps={{
-          className: darkMode ? 'bg-[#121212]' : 'bg-white'
+          className: 'bg-white'
         }}
       >
-        <DialogTitle className={darkMode ? 'text-white' : 'text-black'}>
+        <DialogTitle className="text-black">
           Reset Password
         </DialogTitle>
         <DialogContent>
@@ -314,23 +274,24 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
             variant="body2" 
             gutterBottom 
             sx={{ mb: 2 }} 
-            className={darkMode ? 'text-gray-300' : 'text-gray-600'}
+            className="text-gray-600"
           >
             Enter your email address and we'll send you a link to reset your password.
           </Typography>
-          <LineInput
+          <input
             type="email"
             value={resetEmail}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setResetEmail(e.target.value)}
+            onChange={(e) => setResetEmail(e.target.value)}
             placeholder="Email"
             disabled={loading}
+            className="w-full py-2 px-1 border-b border-gray-400 focus:outline-none focus:border-black"
           />
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
           <Button 
             onClick={() => setShowResetDialog(false)} 
             disabled={loading}
-            className={darkMode ? 'text-white' : 'text-black'}
+            className="text-black"
           >
             Cancel
           </Button>
@@ -339,10 +300,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, darkMode }) => {
             onClick={handleResetPassword}
             disabled={loading}
             endIcon={loading && <CircularProgress size={20} />}
-            className={darkMode ? 
-              'bg-white text-black hover:bg-gray-200' : 
-              'bg-black text-white hover:bg-gray-800'
-            }
+            className="bg-black text-white hover:bg-gray-800"
           >
             Send Reset Link
           </Button>
