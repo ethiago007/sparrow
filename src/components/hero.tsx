@@ -52,7 +52,7 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
           >
             <motion.button
-              className="bg-white text-[#090909] px-6 py-3 rounded-full font-medium text-base shadow-sm cursor-pointer"
+              className="text-md  max-w-2xl mx-auto bg-white text-[#090909] px-6 py-3 rounded-full  text-base shadow-sm cursor-pointer"
               whileHover={{
                 scale: 1.05,
                 boxShadow: "0 4px 12px rgba(0,0,0,0.15)"

@@ -25,6 +25,7 @@ import { auth, db, googleProvider } from '../firebase/firebase.config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import GoogleIcon from '@mui/icons-material/Google';
 
+
 interface AuthDialogProps {
   open: boolean;
   onClose: () => void;
@@ -122,6 +123,8 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, isLogin }) => {
       setLoading(false);
     }
   };
+
+
 
   return (
     <>

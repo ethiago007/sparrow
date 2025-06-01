@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Linkedin, Github, Facebook, Instagram, Send } from 'lucide-react';
+import emailjs from '@emailjs/browser';
+import { Mail, Phone, MapPin, Linkedin, Github, Instagram, Send, CheckCircle, AlertCircle } from 'lucide-react';
 
 // Modern X (Twitter) icon since Lucide doesn't include it yet
 const XIcon = () => (
@@ -9,7 +10,90 @@ const XIcon = () => (
   </svg>
 );
 
+interface FormData {
+  name: string;
+  email: string;
+  message: string;
+}
+
+interface FormStatus {
+  type: 'idle' | 'loading' | 'success' | 'error';
+  message: string;
+}
+
 const ContactSection = () => {
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    message: ''
+  });
+  
+  const [status, setStatus] = useState<FormStatus>({
+    type: 'idle',
+    message: ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+
+  const handleSubmitWithEmailJS = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus({ type: 'loading', message: 'Sending message...' });
+
+    try {
+         
+      // Replace these with your EmailJS credentials
+      const serviceID = 'service_2nek7ak';
+      const templateID = 'template_shf70vh';
+      const publicKey = 'zcAoID9WVoY26viT3';
+
+     
+      
+       const result = await emailjs.send(
+         serviceID,
+         templateID,
+         {
+           from_name: formData.name,
+           from_email: formData.email,
+           message: formData.message,
+           to_email: 'your-email@example.com', // Your email address
+         },
+         publicKey
+       );
+    
+
+   
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setStatus({
+        type: 'success',
+        message: 'Message sent successfully! We\'ll get back to you soon.'
+      });
+      
+      // Reset form
+      setFormData({ name: '', email: '', message: '' });
+      
+    } catch (error) {
+      setStatus({
+        type: 'error',
+        message: 'Failed to send message. Please try again or contact us directly.'
+      });
+    }
+  };
+
+  
+
+  
+
+  // Basic form validation
+  const isFormValid = formData.name.trim() && formData.email.trim() && formData.message.trim();
+
   return (
     <section id="contact" className="py-16 md:py-24 bg-white px-5 sm:px-6 w-full">
       <div className="mx-auto max-w-6xl w-full">
@@ -44,48 +128,100 @@ const ContactSection = () => {
             className="bg-gray-50 rounded-xl p-8 shadow-sm"
           >
             <h3 className="text-2xl font-semibold text-gray-800 mb-6">Send us a message</h3>
-            <form className="space-y-5">
+            
+            {/* Status Message */}
+            {status.type !== 'idle' && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`mb-6 p-4 rounded-lg flex items-center gap-2 ${
+                  status.type === 'success' 
+                    ? 'bg-green-50 text-green-700 border border-green-200' 
+                    : status.type === 'error'
+                    ? 'bg-red-50 text-red-700 border border-red-200'
+                    : 'bg-blue-50 text-blue-700 border border-blue-200'
+                }`}
+              >
+                {status.type === 'success' && <CheckCircle className="w-5 h-5" />}
+                {status.type === 'error' && <AlertCircle className="w-5 h-5" />}
+                {status.type === 'loading' && (
+                  <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                )}
+                <span className="text-sm font-medium">{status.message}</span>
+              </motion.div>
+            )}
+
+            <form onSubmit={handleSubmitWithEmailJS} className="space-y-5">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Name
+                  Name *
                 </label>
                 <input
                   type="text"
                   id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-1 focus:ring-[#090909] focus:border-[#090909] transition-all"
                   placeholder="Your name"
+                  required
                 />
               </div>
+              
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                  Email *
                 </label>
                 <input
                   type="email"
                   id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-1 focus:ring-[#090909] focus:border-[#090909] transition-all"
                   placeholder="your@email.com"
+                  required
                 />
               </div>
+              
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                  Message
+                  Message *
                 </label>
                 <textarea
                   id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-1 focus:ring-[#090909] focus:border-[#090909] transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-1 focus:ring-[#090909] focus:border-[#090909] transition-all resize-vertical"
                   placeholder="Your message..."
+                  required
                 ></textarea>
               </div>
+              
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: isFormValid ? 1.02 : 1 }}
+                whileTap={{ scale: isFormValid ? 0.98 : 1 }}
                 type="submit"
-                className="w-full bg-[#090909] text-white font-semibold py-3 px-6 rounded-lg transition-all hover:bg-opacity-90 flex items-center justify-center gap-2"
+                disabled={!isFormValid || status.type === 'loading'}
+                className={`w-full font-semibold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 ${
+                  isFormValid && status.type !== 'loading'
+                    ? 'bg-[#090909] text-white hover:bg-opacity-90 cursor-pointer'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
               >
-                Send Message
-                <Send className="w-4 h-4" />
+                {status.type === 'loading' ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    Send Message
+                    <Send className="w-4 h-4" />
+                  </>
+                )}
               </motion.button>
             </form>
           </motion.div>
@@ -99,7 +235,7 @@ const ContactSection = () => {
             className="space-y-8"
           >
             <div className="flex items-start gap-5">
-              <div className=" bg-opacity-10 p-3 rounded-full text-[#090909]">
+              <div className="bg-gray-100 p-3 rounded-full text-[#090909]">
                 <Mail className="w-6 h-6" />
               </div>
               <div>
@@ -110,7 +246,7 @@ const ContactSection = () => {
             </div>
 
             <div className="flex items-start gap-5">
-              <div className=" bg-opacity-10 p-3 rounded-full text-[#090909]">
+              <div className="bg-gray-100 p-3 rounded-full text-[#090909]">
                 <Phone className="w-6 h-6" />
               </div>
               <div>
@@ -121,7 +257,7 @@ const ContactSection = () => {
             </div>
 
             <div className="flex items-start gap-5">
-              <div className=" bg-opacity-10 p-3 rounded-full text-[#090909]">
+              <div className="bg-gray-100 p-3 rounded-full text-[#090909]">
                 <MapPin className="w-6 h-6" />
               </div>
               <div>
