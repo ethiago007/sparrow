@@ -222,7 +222,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, isLogin }) => {
             </Box>
           )}
 
-          <Divider sx={{ my: 3 }} className="bg-gray-300">
+          <Divider sx={{ my: 3 }} className="">
             <span className="text-gray-600">OR</span>
           </Divider>
 
