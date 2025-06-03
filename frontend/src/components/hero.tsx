@@ -1,8 +1,26 @@
 import { motion } from 'framer-motion';
 import darkBg from "/darkH.jpg";
 import "../App.css";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase/firebase.config";
+import { useState } from "react";
+import AuthDialog from "./AuthDialog";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(false); // Default to signup
+  
+  const handleStartSummarizing = () => {
+    if (auth.currentUser) {
+      // User is logged in, navigate to summarizer page
+      navigate("/summarize");
+    } else {
+      // User is not logged in, show auth dialog (default to signup)
+      setAuthOpen(true);
+    }
+  };
+
   return (
     <section
       id="hero"
@@ -66,12 +84,20 @@ const HeroSection = () => {
                 stiffness: 300,
                 damping: 10
               }}
+              onClick={handleStartSummarizing}
             >
               Start Summarizing
             </motion.button>
           </motion.div>
         </motion.div>
       </div>
+
+      <AuthDialog 
+        open={authOpen} 
+        onClose={() => setAuthOpen(false)} 
+        isLogin={isLogin}
+        darkMode={true}
+      />
     </section>
   );
 };

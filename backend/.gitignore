@@ -1,0 +1,69 @@
+# .gitignore for FastAPI backend with Groq
+
+# Python and development files
+pycache/
+*.py[cod]
+*.so
+*.egg-info/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environment
+venv/
+env/
+.venv/
+ENV/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+secrets.py
+config.py
+
+# Log files
+*.log
+logs/
+*.sqlite
+*.db
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+
+# Uploaded files
+uploads/
+temp/
+*.pdf  # Exclude any test PDF files
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Dependency directories
+dist/
+build/
+*.lib
+*.dll
+
+# Groq cache (if any)
+.groq_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code workspace files
+*.code-workspace
+
+# Local development files
+local_settings.py
+settings.json
+
+# Byte-compiled / optimized files
+*.pyc
