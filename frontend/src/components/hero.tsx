@@ -9,7 +9,7 @@ import AuthDialog from "./AuthDialog";
 const HeroSection = () => {
   const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
-  const [isLogin, setIsLogin] = useState(false); // Default to signup
+  const [isLogin, _setIsLogin] = useState(false); // Default to signup
   
   const handleStartSummarizing = () => {
     if (auth.currentUser) {

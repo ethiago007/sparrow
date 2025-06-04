@@ -28,7 +28,7 @@ const Summarizer: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Save state to memory (since sessionStorage is not available)
-  const [savedState, setSavedState] = useState<SavedState>({
+  const [_savedState, setSavedState] = useState<SavedState>({
     results: null,
     fileName: '',
     answer: null,

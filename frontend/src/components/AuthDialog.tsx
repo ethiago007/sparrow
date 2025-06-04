@@ -44,7 +44,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, isLogin }) => {
   const [showResetDialog, setShowResetDialog] = useState<boolean>(false);
   const [resetEmail, setResetEmail] = useState<string>('');
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
     setError(null);
     setSuccess(null);

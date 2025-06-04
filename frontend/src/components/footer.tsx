@@ -1,7 +1,7 @@
 
-import React from 'react';
+
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Linkedin, Github, Facebook, Instagram, Bird } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Github, Instagram, Bird } from 'lucide-react';
 
 // Custom X icon component
 const XIcon = () => (

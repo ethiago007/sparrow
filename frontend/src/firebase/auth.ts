@@ -13,10 +13,11 @@ import {
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
+  // @ts-ignore
   type User
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { getToken, onMessage } from 'firebase/messaging';
+
 
 // Helper function to check if user document exists
 const checkUserExists = async (uid: string): Promise<boolean> => {

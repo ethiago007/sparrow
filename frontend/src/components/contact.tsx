@@ -71,8 +71,8 @@ const ContactSection = () => {
       const serviceID = 'service_2nek7ak';
       const templateID = 'template_shf70vh';
       const publicKey = 'zcAoID9WVoY26viT3';
-
-      const result = await emailjs.send(
+// @ts-ignore
+      const _result = await emailjs.send(
         serviceID,
         templateID,
         {
