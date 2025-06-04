@@ -14,7 +14,6 @@ const Navbar = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
   
   // Add this ref to track when user is clicking navigation
   const isNavigatingRef = useRef(false);
@@ -56,24 +55,12 @@ const Navbar = () => {
       setDarkBackground(shouldBeDark);
     };
 
-    // Initialize after a brief delay to ensure DOM is ready
-    const initializeNavbar = () => {
-      setTimeout(() => {
-        handleScroll();
-        setIsInitialized(true);
-      }, 100);
-    };
-
-    // Handle both immediate initialization and scroll events
-    if (document.readyState === 'complete') {
-      initializeNavbar();
-    } else {
-      window.addEventListener('load', initializeNavbar);
-    }
-
+    // Initialize immediately
+    handleScroll();
+    
     window.addEventListener("scroll", handleScroll);
     
-    // Also initialize on resize for mobile orientation changes
+    // Also handle resize for mobile orientation changes
     const handleResize = () => {
       setTimeout(handleScroll, 100);
     };
@@ -81,7 +68,6 @@ const Navbar = () => {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener('load', initializeNavbar);
       window.removeEventListener('resize', handleResize);
     };
   }, []);
@@ -174,35 +160,36 @@ const scrollToSection = (id: string) => {
   return (
     <>
       <motion.nav
-        initial={{ y: -100, opacity: 0 }}
+        initial={{ y: 0, opacity: 1 }}
         animate={{ 
           y: 0, 
-          opacity: isInitialized ? 1 : 0.8 
+          opacity: 1 
         }}
         transition={{ 
           type: "spring", 
           stiffness: 300, 
           damping: 20,
-          opacity: { duration: 0.3 }
+          duration: 0.3
         }}
-        className={`fixed w-full z-50 ${bgColor} backdrop-blur-sm transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 ${bgColor} backdrop-blur-sm transition-all duration-300 ${
           scrolled ? "shadow-lg" : ""
         }`}
       >
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20 items-center w-full min-w-0">
+        <div className="mx-auto px-3 sm:px-4 lg:px-8 max-w-7xl">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex-shrink-0 flex items-center gap-1 cursor-pointer min-w-0"
+              className="flex items-center gap-1 cursor-pointer flex-shrink-0"
               onClick={() => scrollToSection("hero")}
             >
-              <span className={`text-xl sm:text-2xl font-bold ${textColor} truncate`}>Sparrow</span>
-              <Bird className={`w-5 h-5 sm:w-6 sm:h-6 ${textColor} flex-shrink-0`} />
+              <span className={`text-lg sm:text-xl md:text-2xl font-bold ${textColor}`}>Sparrow</span>
+              <Bird className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${textColor}`} />
             </motion.div>
 
             {/* Desktop navigation */}
-            <div className="hidden md:flex md:items-center md:justify-center md:flex-1 md:min-w-0">
+            <div className="hidden md:flex md:items-center md:justify-center md:flex-1">
               <div className="flex space-x-8">
                 {navItems.map((item) => (
                   <motion.div
@@ -326,18 +313,19 @@ const scrollToSection = (id: string) => {
             </div>
 
             {/* Mobile menu toggle */}
-            <div className="flex md:hidden flex-shrink-0 ml-auto">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsOpen(!isOpen)}
-                className={`inline-flex items-center justify-center p-2 rounded-md ${textColor} touch-manipulation`}
-                aria-label="Toggle menu"
-                style={{ minWidth: '44px', minHeight: '44px' }}
-              >
-                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </motion.button>
-            </div>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsOpen(!isOpen)}
+              className={`md:hidden inline-flex items-center justify-center p-2 rounded-md ${textColor} touch-manipulation flex-shrink-0`}
+              aria-label="Toggle menu"
+              style={{ 
+                minWidth: '44px', 
+                minHeight: '44px'
+              }}
+            >
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </motion.button>
           </div>
         </div>
 

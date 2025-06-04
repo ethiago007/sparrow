@@ -1,8 +1,25 @@
-
+import { auth } from "../firebase/firebase.config";
+import { useState } from "react";
+import AuthDialog from "./AuthDialog";
+import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
 const CTASection = () => {
+   const navigate = useNavigate();
+    const [authOpen, setAuthOpen] = useState(false);
+    const [isLogin, _setIsLogin] = useState(false); // Default to signup
+
+      const handleStartSummarizing = () => {
+    if (auth.currentUser) {
+      // User is logged in, navigate to summarizer page
+      navigate("/summarize");
+    } else {
+      // User is not logged in, show auth dialog (default to signup)
+      setAuthOpen(true);
+    }
+  };
+
   return (
     <section id="cta" className="py-16 md:py-24 bg-[#090909] px-5 sm:px-6 w-full">
       <div className="mx-auto max-w-6xl w-full">
@@ -29,6 +46,7 @@ const CTASection = () => {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               className="bg-white text-[#090909] font-semibold px-6 py-3 sm:px-8 sm:py-3 rounded-lg flex items-center justify-center gap-2 transition-all w-full sm:w-auto"
+              onClick={handleStartSummarizing}
             >
               Get Started Free
               <ArrowRight className="w-5 h-5" />
@@ -72,6 +90,13 @@ const CTASection = () => {
           </div>
         </motion.div>
       </div>
+
+       <AuthDialog 
+              open={authOpen} 
+              onClose={() => setAuthOpen(false)} 
+              isLogin={isLogin}
+              darkMode={true}
+            />
     </section>
   );
 };

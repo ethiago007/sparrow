@@ -23,6 +23,7 @@ const Summarizer: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [results, setResults] = useState<ApiResponse | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isAskingQuestion, setIsAskingQuestion] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [userQuestion, setUserQuestion] = useState<string>('');
   const [answer, setAnswer] = useState<AnswerResponse | null>(null);
@@ -63,6 +64,7 @@ const Summarizer: React.FC = () => {
     setAnswer(null);
     setFileName('');
     setIsProcessing(false);
+    setIsAskingQuestion(false);
   };
 
   const handleFileUpload = async (): Promise<void> => {
@@ -104,7 +106,7 @@ const Summarizer: React.FC = () => {
   const handleAskQuestion = async (): Promise<void> => {
     if (!file || !userQuestion.trim()) return;
 
-    setIsProcessing(true);
+    setIsAskingQuestion(true);
     setError('');
 
     try {
@@ -112,7 +114,8 @@ const Summarizer: React.FC = () => {
       formData.append('file', file);
       formData.append('question', userQuestion);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/process`, {
+      // FIXED: Use the correct /ask endpoint
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/ask`, {
         method: 'POST',
         body: formData,
       });
@@ -123,15 +126,17 @@ const Summarizer: React.FC = () => {
       }
 
       const data: AnswerResponse = await response.json();
+      console.log('Answer response:', data); // Debug log
       setAnswer(data);
     } catch (err) {
+      console.error('Error asking question:', err); // Debug log
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError('An unknown error occurred');
       }
     } finally {
-      setIsProcessing(false);
+      setIsAskingQuestion(false);
     }
   };
 
@@ -286,17 +291,22 @@ const Summarizer: React.FC = () => {
               />
               <button
                 onClick={handleAskQuestion}
-                disabled={isProcessing || !userQuestion.trim()}
+                disabled={isAskingQuestion || !userQuestion.trim()}
                 className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
                 type="button"
               >
-                {isProcessing ? <Loader2 className="animate-spin" size={16} /> : 'Ask'}
+                {isAskingQuestion ? <Loader2 className="animate-spin" size={16} /> : 'Ask'}
               </button>
             </div>
+            
+            {/* Error display for questions */}
+            {error && <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded text-red-700">{error}</div>}
+            
+            {/* Answer display */}
             {answer && (
               <div className="mt-2 p-3 bg-gray-50 rounded">
                 <p className="font-medium">Answer:</p>
-                <p>{answer.answer}</p>
+                <p className="mt-1">{answer.answer}</p>
               </div>
             )}
           </div>
