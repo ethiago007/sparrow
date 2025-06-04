@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Upload, Loader2, FileText, X, ChevronRight, ArrowLeft, RotateCcw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 type ApiResponse = {
   summary?: string;
@@ -18,6 +19,7 @@ type SavedState = {
 };
 
 const Summarizer: React.FC = () => {
+   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [results, setResults] = useState<ApiResponse | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -47,9 +49,10 @@ const Summarizer: React.FC = () => {
   }, [results, fileName, answer, userQuestion]);
 
   const handleBack = (): void => {
-    // This would navigate to the previous page in a real app
+   navigate(-1);
     console.log('Navigate back');
   };
+  
 
   const handleUploadAnother = (): void => {
     // Reset all state to allow uploading a new file
@@ -74,7 +77,7 @@ const Summarizer: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('http://localhost:8000/process', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/process`, {
         method: 'POST',
         body: formData,
       });
@@ -109,7 +112,7 @@ const Summarizer: React.FC = () => {
       formData.append('file', file);
       formData.append('question', userQuestion);
 
-      const response = await fetch('https://sparrow-95mb.onrender.com', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/process`, {
         method: 'POST',
         body: formData,
       });
@@ -151,6 +154,8 @@ const Summarizer: React.FC = () => {
   const handleQuestionInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setUserQuestion(e.target.value);
   };
+
+  
 
   return (
     <div className="max-w-2xl mx-auto p-4 pt-30">
@@ -240,14 +245,14 @@ const Summarizer: React.FC = () => {
           </div>
 
           {/* Summary */}
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h2 className="font-bold text-lg mb-2">Document Summary</h2>
-            <div className="prose max-w-none">
-              {results.summary.split('\n').map((line: string, i: number) => (
-                <p key={i}>{line}</p>
-              ))}
-            </div>
-          </div>
+         <div className="bg-blue-50 p-4 rounded-lg overflow-x-auto">
+  <h2 className="font-bold text-lg md:text-xl mb-2">Document Summary</h2>
+  <div className="text-sm sm:text-base md:text-lg leading-relaxed whitespace-pre-line break-words">
+    {results.summary.split('\n').map((line: string, i: number) => (
+      <p key={i} className="mb-2">{line}</p>
+    ))}
+  </div>
+</div>
           
           {/* Questions */}
           {results.questions && results.questions.length > 0 && (

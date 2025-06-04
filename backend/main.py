@@ -21,7 +21,10 @@ app = FastAPI(title="PDF Summarizer API with Groq", version="1.0.0")
 # CORS Setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",         
+        "https://sparrow-five.vercel.app" 
+    ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
