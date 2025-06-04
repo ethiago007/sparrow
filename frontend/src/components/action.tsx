@@ -109,7 +109,7 @@ const Summarizer: React.FC = () => {
       formData.append('file', file);
       formData.append('question', userQuestion);
 
-      const response = await fetch('http://localhost:8000/ask', {
+      const response = await fetch('https://sparrow-95mb.onrender.com', {
         method: 'POST',
         body: formData,
       });
