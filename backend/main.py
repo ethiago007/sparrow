@@ -408,40 +408,61 @@ def generate_fallback_questions(text: str) -> List[str]:
     return questions
 
 async def answer_question_with_groq(text: str, question: str) -> str:
-    """Answer question using Groq"""
+    """Answer question using Groq with better formatting"""
     try:
         max_chars = 2500
         if len(text) > max_chars:
             text = text[:max_chars] + "..."
         
-        prompt = f"""Please answer the following question based on the provided document. Be specific and use information from the document and also make the answer orderly. Do not just jam them together. Format it properly:
+        prompt = f"""Please provide a well-structured and comprehensive answer to the following question based on the provided document. 
+
+FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
+**Direct Answer:**
+[Clear, direct answer to the question]
+
+**Key Details:**
+• [First important detail or supporting point]
+• [Second important detail or supporting point]
+• [Third important detail or supporting point]
+
+**Context & Background:**
+[Additional context or background information from the document that relates to the question]
+
+**Supporting Evidence:**
+[Specific examples, data, or quotes from the document that support the answer]
+
+Use proper formatting with headers, bullet points, and clear paragraphs. Be specific and use information directly from the document.
 
 Question: {question}
 
 Document: {text}
 
-Answer:"""
+Formatted Answer:"""
         
-        answer = await call_groq_api(prompt, max_tokens=300)
+        answer = await call_groq_api(prompt, max_tokens=400)
         
         if answer and len(answer.strip()) > 10:
             return answer.strip()
         else:
-            return generate_simple_answer(text, question)
+            return generate_formatted_simple_answer(text, question)
         
     except Exception as e:
         logger.error(f"Error answering question: {str(e)}")
-        return generate_simple_answer(text, question)
+        return generate_formatted_simple_answer(text, question)
 
-def generate_simple_answer(text: str, question: str) -> str:
-    """Generate simple answer using text search"""
+def generate_formatted_simple_answer(text: str, question: str) -> str:
+    """Generate formatted simple answer using text search"""
     try:
         question_lower = question.lower()
         question_words = re.findall(r'\b\w+\b', question_lower)
         question_words = [w for w in question_words if len(w) > 3 and w not in ['what', 'where', 'when', 'how', 'why', 'which', 'this', 'that']]
         
         if not question_words:
-            return "I need more specific terms in the question to find relevant information."
+            return """**Direct Answer:**
+I need more specific terms in the question to find relevant information.
+
+**Suggestion:**
+Please try rephrasing your question with more specific keywords related to the document content."""
         
         sentences = text.split('.')
         relevant_sentences = []
@@ -449,16 +470,36 @@ def generate_simple_answer(text: str, question: str) -> str:
         for sentence in sentences:
             if any(word in sentence.lower() for word in question_words):
                 relevant_sentences.append(sentence.strip())
-                if len(relevant_sentences) >= 2:
+                if len(relevant_sentences) >= 3:
                     break
         
         if relevant_sentences:
-            return '. '.join(relevant_sentences) + '.'
+            formatted_answer = f"""**Direct Answer:**
+Based on the document content, here's what I found regarding your question.
+
+**Key Information:**
+• {relevant_sentences[0]}
+• {relevant_sentences[1] if len(relevant_sentences) > 1 else 'Additional context provided in the document'}
+• {relevant_sentences[2] if len(relevant_sentences) > 2 else 'Further details available in the source material'}
+
+**Context:**
+The information above was extracted from the document based on the keywords: {', '.join(question_words)}"""
+            return formatted_answer
         else:
-            return f"I couldn't find specific information about '{' '.join(question_words)}' in the document."
+            return f"""**Direct Answer:**
+I couldn't find specific information about '{' '.join(question_words)}' in the document.
+
+**Suggestion:**
+• Try using different keywords
+• Check if the topic is covered under a different term
+• Consider asking a more general question about the document content"""
             
     except Exception as e:
-        return "I encountered an error while trying to answer that question."
+        return """**Error:**
+I encountered an error while trying to answer that question.
+
+**Suggestion:**
+Please try rephrasing your question or contact support if the issue persists."""
 
 @app.get("/")
 async def root():
@@ -553,3 +594,13 @@ async def ask_question(file: UploadFile = File(...), question: str = Form(...)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+• Try using different keywords
+• Check if the topic is covered under a different term
+• Consider asking a more general question about the document content"""
+            
+    except Exception as e:
+        return """**Error:**
+I encountered an error while trying to answer that question.
+
+**Suggestion:**
+Please try rephrasing your question or contact support if the issue persists."""
