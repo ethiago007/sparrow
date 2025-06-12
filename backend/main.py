@@ -414,7 +414,7 @@ async def answer_question_with_groq(text: str, question: str) -> str:
         if len(text) > max_chars:
             text = text[:max_chars] + "..."
         
-        prompt = f"""Please answer the following question based on the provided document. Be specific and use information from the document:
+        prompt = f"""Please answer the following question based on the provided document. Be specific and use information from the document and also make the answer orderly. Do not just jam them together. Format it properly:
 
 Question: {question}
 
